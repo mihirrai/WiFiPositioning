@@ -8,9 +8,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,24 +24,33 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
-    Button b;
+    Button b,b2;
     public TextView tv;
     public static final int RESULT_LOAD_IMAGE = 1000;
     private static final int CAMERA_REQUEST = 1001;
     ImageView iv;
+    SQLiteHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         b=(Button)findViewById(R.id.button);
+        b2=(Button)findViewById(R.id.button2);
         b.setOnClickListener(this);
+        b2.setOnClickListener(this);
         tv=(TextView)findViewById(R.id.textView);
         iv=(ImageView)findViewById(R.id.imageView);
+        db = new SQLiteHelper(this);
 
     }
 
@@ -82,6 +94,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             lv.setAdapter(adapter);
             alertDialog.show();
         }
+
+        if(id==R.id.training){
+
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -107,23 +123,22 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.button:
-                /*WifiManager wifiManager=(WifiManager)this.getSystemService(Context.WIFI_SERVICE);
+                WifiManager wifiManager=(WifiManager)this.getSystemService(Context.WIFI_SERVICE);
                 List<ScanResult> results = wifiManager.getScanResults();
-                Log.d("Wifiresults", results+ "");
-                for (ScanResult result : results){
-                    if(result.SSID.contains("mihir")) {
-                        int lvl = result.level;
-                        if(lvl<-60){
-                            Toast.makeText(this, "Room 2",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        else{
-                            Toast.makeText(this, "Room 1",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                       // Toast.makeText(this, (String.valueOf(result.level)),
-                                //Toast.LENGTH_SHORT).show();
+                Comparator<ScanResult> comparator = new Comparator<ScanResult>() {
+                    @Override
+                    public int compare(ScanResult lhs, ScanResult rhs) {
+                        return (rhs.level <lhs.level ? -1 : (lhs.level==rhs.level ? 0 : 1));
                     }
+                };
+                Collections.sort(results, comparator);
+                //Log.d("Wifiresults", results + "");
+                for (ScanResult result : results){
+                    /*if(result.BSSID.contains("mihir")) {
+                        int lvl = result.level;
+                    }*/
+                    db.addRouter(new TestDB(result.BSSID,result.level));
+                    Log.d("Result","BSSID: "+result.BSSID+" SSID: "+result.SSID+" Level: "+result.level);
                 }
 
                 /*for(ScanResult showresult: results) {
@@ -132,10 +147,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     //Log.d("Test", showresult.BSSID + ": " + showresult.level + ", d: " +
                             //df.format(calculateDistance((double) showresult.level, showresult.frequency)) + "m");
                 }*/
-                startService(new Intent(getBaseContext(), Service.class));
+                //startService(new Intent(getBaseContext(), Service.class));
                 break;
             case R.id.button2:
-                stopService(new Intent(getBaseContext(), Service.class));
+                //stopService(new Intent(getBaseContext(), Service.class));
+                //db.close();
+                db.delete();
+
                 break;
         }
     }
@@ -144,11 +162,4 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(levelInDb)) / 20.0;
         return Math.pow(10.0, exp);
     }
-
-    private BroadcastReceiver onBroadcast = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context ctxt, Intent i) {
-            tv.setText("Room 1");
-        }
-    };
 }
