@@ -6,7 +6,4 @@
     <item android:id="@+id/add_map"
         android:title="Add Map"
         app:showAsAction="always"/>
-    <item android:id="@+id/training"
-        android:title="Training"
-        app:showAsAction="always"/>
 </menu>

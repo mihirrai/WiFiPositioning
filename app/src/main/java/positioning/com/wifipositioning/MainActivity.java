@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -51,7 +53,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         tv=(TextView)findViewById(R.id.textView);
         iv=(ImageView)findViewById(R.id.imageView);
         db = new SQLiteHelper(this);
-
     }
 
     @Override
@@ -94,10 +95,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             lv.setAdapter(adapter);
             alertDialog.show();
         }
-
-        if(id==R.id.training){
-
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -137,23 +134,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     /*if(result.BSSID.contains("mihir")) {
                         int lvl = result.level;
                     }*/
-                    db.addRouter(new TestDB(result.BSSID,result.level));
+                    Double t=calculateDistance((double) result.level, result.frequency);
+                    db.addRouter(new DB(result.BSSID,result.SSID,result.level,t.floatValue()));
                     Log.d("Result","BSSID: "+result.BSSID+" SSID: "+result.SSID+" Level: "+result.level);
                 }
-
-                /*for(ScanResult showresult: results) {
-                    Log.d("Wifiresults", results + "");
-                    DecimalFormat df = new DecimalFormat("#.##");
-                    //Log.d("Test", showresult.BSSID + ": " + showresult.level + ", d: " +
-                            //df.format(calculateDistance((double) showresult.level, showresult.frequency)) + "m");
-                }*/
                 //startService(new Intent(getBaseContext(), Service.class));
                 break;
             case R.id.button2:
                 //stopService(new Intent(getBaseContext(), Service.class));
-                //db.close();
                 db.delete();
-
                 break;
         }
     }

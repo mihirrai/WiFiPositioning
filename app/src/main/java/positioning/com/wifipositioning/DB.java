@@ -1,19 +1,22 @@
 package positioning.com.wifipositioning;
 
 /**
- * Created by Mihir on 5/10/2015.
+ * Created by Mihir on 5/11/2015.
  */
-public class TestDB {
+public class DB {
     private int id;
-    String BSSID;
+    float distance;
+    String BSSID,SSID;
     int level;
 
-    public TestDB(){}
+    public DB(){}
 
-    public TestDB(String BSSID, int level){
+    public DB(String BSSID, String SSID,int level, float distance){
         super();
         this.BSSID=BSSID;
+        this.SSID=SSID;
         this.level=level;
+        this.distance=distance;
     }
 
     public String toString(){
